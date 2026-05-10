@@ -1,0 +1,32 @@
+# Traveloop - Personalized Travel Planning Made Easy
+
+## Overview
+Traveloop is a smart collaborative travel planning platform where users can plan trips, create itineraries, manage multiple cities/stops, discover activities, estimate budgets, track expenses, and more.
+
+## Tech Stack
+- Frontend: React + Vite + Tailwind CSS + Zustand
+- Backend: Node.js + Express + Prisma ORM
+- Database: PostgreSQL
+
+## Setup Instructions
+
+1. Start the database:
+   ```bash
+   docker-compose up -d
+   ```
+
+2. Setup Backend:
+   ```bash
+   cd backend
+   npm install
+   cp .env.example .env
+   npx prisma migrate dev --name init
+   npm run dev
+   ```
+
+3. Setup Frontend:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
