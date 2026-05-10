@@ -1,7 +1,13 @@
-import TestPage from "./Testpage";
+import { BrowserRouter } from "react-router-dom";
+
+import Dashboard from "./pages/Main_Landing_page_screen_3";
 
 function App() {
-  return <TestPage />;
+  return (
+    <BrowserRouter>
+      <Dashboard />
+    </BrowserRouter>
+  );
 }
 
 export default App;
