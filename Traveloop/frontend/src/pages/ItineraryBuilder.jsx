@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../api/axios';
-import { MapPin, Plus, Navigation, Clock, DollarSign } from 'lucide-react';
+import { MapPin, Plus, Navigation, Clock } from 'lucide-react';
 
 export default function ItineraryBuilder() {
   const { id } = useParams();
@@ -48,88 +48,88 @@ export default function ItineraryBuilder() {
     }
   };
 
-  if (!trip) return <div className="text-center p-12">Loading...</div>;
+  if (!trip) return <div className="text-center p-12 text-white">Loading...</div>;
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
       <div className="w-full lg:w-1/3">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
-          <div className="mb-6 pb-6 border-b border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{trip.title}</h2>
-            <p className="text-gray-500 text-sm flex items-center">
-              <Clock className="h-4 w-4 mr-1" />
+        <div className="bg-[#0a0a0a]/80 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl sticky top-6">
+          <div className="mb-6 pb-6 border-b border-white/10">
+            <h2 className="text-2xl font-bold text-white mb-2">{trip.title}</h2>
+            <p className="text-gray-400 text-sm flex items-center">
+              <Clock className="h-4 w-4 mr-2 text-purple-400" />
               {new Date(trip.startDate).toLocaleDateString()} - {new Date(trip.endDate).toLocaleDateString()}
             </p>
           </div>
           
-          <h3 className="font-semibold text-lg mb-4 flex items-center"><Navigation className="h-5 w-5 mr-2 text-primary" /> Add Destination</h3>
+          <h3 className="font-semibold text-lg text-white mb-4 flex items-center"><Navigation className="h-5 w-5 mr-2 text-purple-400" /> Add Destination</h3>
           <form onSubmit={addStop} className="flex gap-2">
-            <input type="text" placeholder="E.g., Paris" className="flex-1 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-primary focus:border-primary" value={newCity} onChange={e => setNewCity(e.target.value)} required />
-            <button type="submit" className="bg-primary text-white p-2.5 rounded-lg hover:bg-secondary transition-colors"><Plus className="h-5 w-5" /></button>
+            <input type="text" placeholder="E.g., Paris" className="flex-1 bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:ring-1 focus:ring-purple-500 focus:border-purple-500 outline-none placeholder-gray-500" value={newCity} onChange={e => setNewCity(e.target.value)} required />
+            <button type="submit" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-xl hover:scale-105 transition-all"><Plus className="h-5 w-5" /></button>
           </form>
         </div>
       </div>
       
       <div className="w-full lg:w-2/3 space-y-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Trip Itinerary</h2>
+          <h2 className="text-2xl font-black text-white tracking-wide">Trip Itinerary</h2>
         </div>
 
         {trip.stops?.length === 0 ? (
-          <div className="bg-white p-12 text-center rounded-2xl shadow-sm border border-gray-100">
-            <MapPin className="mx-auto h-16 w-16 text-gray-200 mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Your itinerary is empty</h3>
-            <p className="text-gray-500 max-w-md mx-auto">Start planning your trip by adding a destination on the left panel.</p>
+          <div className="bg-[#0a0a0a]/80 backdrop-blur-xl p-12 text-center rounded-3xl border border-white/10 shadow-2xl">
+            <MapPin className="mx-auto h-16 w-16 text-purple-500/50 mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2">Your itinerary is empty</h3>
+            <p className="text-gray-400 max-w-md mx-auto">Start planning your trip by adding a destination on the left panel.</p>
           </div>
         ) : (
-          <div className="relative border-l-2 border-gray-200 ml-4 space-y-8 pb-8">
+          <div className="relative border-l-2 border-white/20 ml-4 space-y-8 pb-8">
             {trip.stops?.map((stop, index) => (
               <div key={stop.id} className="relative pl-8">
-                <div className="absolute w-6 h-6 bg-primary rounded-full -left-[13px] border-4 border-gray-50 top-1"></div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div className="absolute w-6 h-6 bg-purple-500 rounded-full -left-[13px] border-4 border-[#050816] top-1"></div>
+                <div className="bg-[#0a0a0a]/80 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl">
                   <div className="flex justify-between items-center mb-6">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">{stop.city}</h3>
-                      <p className="text-sm text-gray-500 mt-1">{new Date(stop.startDate).toLocaleDateString()}</p>
+                      <h3 className="text-xl font-bold text-white">{stop.city}</h3>
+                      <p className="text-sm text-gray-400 mt-1">{new Date(stop.startDate).toLocaleDateString()}</p>
                     </div>
                   </div>
                   
                   <div className="space-y-3 mb-6">
                     {stop.activities?.map(act => (
-                      <div key={act.id} className="bg-gray-50 p-4 rounded-xl flex justify-between items-center border border-gray-100 group">
+                      <div key={act.id} className="bg-white/5 p-4 rounded-2xl flex justify-between items-center border border-white/5">
                         <div className="flex items-center">
-                          <div className="bg-white p-2 rounded-lg shadow-sm mr-3">
-                            <Navigation className="h-4 w-4 text-primary" />
+                          <div className="bg-white/10 p-2 rounded-xl shadow-sm mr-3">
+                            <Navigation className="h-4 w-4 text-purple-400" />
                           </div>
                           <div>
-                            <span className="font-medium text-gray-900 block">{act.title}</span>
-                            <span className="text-xs text-gray-500 capitalize">{act.category}</span>
+                            <span className="font-medium text-white block">{act.title}</span>
+                            <span className="text-xs text-purple-300 capitalize">{act.category}</span>
                           </div>
                         </div>
-                        <span className="font-semibold text-gray-900 bg-white px-3 py-1 rounded-full shadow-sm text-sm border border-gray-100">${act.cost}</span>
+                        <span className="font-semibold text-green-400 bg-green-500/10 px-3 py-1 rounded-full text-sm border border-green-500/20">${act.cost}</span>
                       </div>
                     ))}
                   </div>
 
                   {activityForm.stopId === stop.id ? (
-                    <form onSubmit={(e) => addActivity(e, stop.id)} className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                      <div className="grid grid-cols-12 gap-3 mb-3">
-                        <input type="text" placeholder="Activity name" className="col-span-12 sm:col-span-6 p-2 rounded border border-gray-300 text-sm" value={activityForm.title} onChange={e => setActivityForm({...activityForm, title: e.target.value})} required />
-                        <input type="number" placeholder="Cost" className="col-span-6 sm:col-span-3 p-2 rounded border border-gray-300 text-sm" value={activityForm.cost} onChange={e => setActivityForm({...activityForm, cost: e.target.value})} required />
-                        <select className="col-span-6 sm:col-span-3 p-2 rounded border border-gray-300 text-sm" value={activityForm.category} onChange={e => setActivityForm({...activityForm, category: e.target.value})}>
+                    <form onSubmit={(e) => addActivity(e, stop.id)} className="bg-purple-900/20 p-5 rounded-2xl border border-purple-500/30">
+                      <div className="grid grid-cols-12 gap-3 mb-4">
+                        <input type="text" placeholder="Activity name" className="col-span-12 sm:col-span-6 p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-purple-500" value={activityForm.title} onChange={e => setActivityForm({...activityForm, title: e.target.value})} required />
+                        <input type="number" placeholder="Cost ($)" className="col-span-6 sm:col-span-3 p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-purple-500" value={activityForm.cost} onChange={e => setActivityForm({...activityForm, cost: e.target.value})} required />
+                        <select className="col-span-6 sm:col-span-3 p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-purple-500 [&>option]:bg-gray-900" value={activityForm.category} onChange={e => setActivityForm({...activityForm, category: e.target.value})}>
                           <option value="sightseeing">Sightseeing</option>
                           <option value="food">Food</option>
                           <option value="transport">Transport</option>
                         </select>
                       </div>
-                      <div className="flex justify-end gap-2">
-                        <button type="button" onClick={() => setActivityForm({ stopId: null, title: '', cost: '', category: 'sightseeing' })} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-200 rounded-lg">Cancel</button>
-                        <button type="submit" className="px-3 py-1.5 text-sm bg-primary text-white rounded-lg hover:bg-secondary">Save Activity</button>
+                      <div className="flex justify-end gap-3">
+                        <button type="button" onClick={() => setActivityForm({ stopId: null, title: '', cost: '', category: 'sightseeing' })} className="px-4 py-2 text-sm text-gray-400 hover:bg-white/10 rounded-xl transition-colors">Cancel</button>
+                        <button type="submit" className="px-4 py-2 text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:scale-105 transition-all shadow-lg font-medium">Save Activity</button>
                       </div>
                     </form>
                   ) : (
-                    <button onClick={() => setActivityForm({ stopId: stop.id, title: '', cost: '', category: 'sightseeing' })} className="text-sm text-primary font-medium flex items-center hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors w-full justify-center border border-dashed border-blue-200">
-                      <Plus className="h-4 w-4 mr-1" /> Add an activity
+                    <button onClick={() => setActivityForm({ stopId: stop.id, title: '', cost: '', category: 'sightseeing' })} className="text-sm text-purple-400 font-medium flex items-center hover:bg-white/5 px-4 py-3 rounded-xl transition-colors w-full justify-center border border-dashed border-white/20 hover:border-purple-500/50">
+                      <Plus className="h-4 w-4 mr-2" /> Add an activity
                     </button>
                   )}
                 </div>
