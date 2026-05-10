@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import Navbar from './components/Navbar';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import CreateTrip from './pages/CreateTrip';
-import TripList from './pages/TripList';
-import ItineraryBuilder from './pages/ItineraryBuilder';
+import Login from './pages/Login_screen_1';
+import Register from './pages/Registration_screen_2';
+import Dashboard from './pages/Main_Landing_page_screen_3';
+import CreateTrip from './pages/Create_a_new_trip_screen_4';
+import TripList from './pages/User_Trip_Listing_screen_6';
+import ItineraryBuilder from './pages/Build_Itenary_screen_5';
 
 const ProtectedRoute = ({ children }) => {
   const token = useAuthStore(state => state.token);
