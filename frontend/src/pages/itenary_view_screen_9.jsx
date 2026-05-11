@@ -1,239 +1,177 @@
-import { useState } from "react";
-
+import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
 import {
-  Search,
-  Filter,
-  ArrowRight,
-  Sparkles,
-  Calendar,
-  DollarSign,
-  MapPin,
-  Clock,
+  Sparkles, Calendar, DollarSign, MapPin, Clock, ArrowLeft,
+  CheckSquare, FileText, FileSpreadsheet, Globe,
 } from "lucide-react";
 
+const FALLBACK = [
+  { id: "f1", title: "Morning Beach Walk",  category: "Leisure",   cost: 0,   time: "8:00 AM",  location: "Beach Front" },
+  { id: "f2", title: "Museum Visit",        category: "Culture",   cost: 25,  time: "11:00 AM", location: "City Center" },
+  { id: "f3", title: "Sunset Paragliding",  category: "Adventure", cost: 120, time: "5:00 PM",  location: "Mountain View" },
+  { id: "f4", title: "Island Boat Ride",    category: "Leisure",   cost: 90,  time: "9:00 AM",  location: "Island Harbor" },
+  { id: "f5", title: "Luxury Dinner",       category: "Food",      cost: 150, time: "8:00 PM",  location: "Sky Restaurant" },
+];
+
+const CAT_ACCENT = {
+  Leisure:   "border-purple-500/20  bg-purple-500/5",
+  Culture:   "border-blue-500/20    bg-blue-500/5",
+  Adventure: "border-orange-500/20  bg-orange-500/5",
+  Food:      "border-pink-500/20    bg-pink-500/5",
+  Nature:    "border-emerald-500/20 bg-emerald-500/5",
+  default:   "border-gray-500/20    bg-gray-500/5",
+};
+
 export default function ItineraryViewPage() {
-  const [search, setSearch] = useState("");
+  const location = useLocation();
+  const navigate  = useNavigate();
+  const { id }   = useParams();
 
-  const itinerary = [
-    {
-      day: "Day 1",
-      activities: [
-        {
-          title: "Morning Beach Walk",
-          expense: "$40",
-          location: "Bali Beach",
-          time: "8:00 AM",
-        },
-        {
-          title: "Paragliding Adventure",
-          expense: "$120",
-          location: "Mountain View Point",
-          time: "12:00 PM",
-        },
-        {
-          title: "Night Market Visit",
-          expense: "$60",
-          location: "City Center",
-          time: "7:00 PM",
-        },
-      ],
-    },
-
-    {
-      day: "Day 2",
-      activities: [
-        {
-          title: "Island Boat Ride",
-          expense: "$90",
-          location: "Island Harbor",
-          time: "9:00 AM",
-        },
-        {
-          title: "Luxury Dinner",
-          expense: "$150",
-          location: "Sky Restaurant",
-          time: "8:00 PM",
-        },
-        {
-          title: "Beach Party",
-          expense: "$75",
-          location: "Palm Beach",
-          time: "10:00 PM",
-        },
-      ],
-    },
-  ];
+  const activities = location.state?.activities || FALLBACK;
+  const totalCost  = activities.reduce((s, a) => s + Number(a.cost || 0), 0);
 
   return (
-    <div className="min-h-screen bg-[#050816] text-white px-6 py-10">
-      <div className="max-w-7xl mx-auto">
-        {/* HEADER */}
-        <div className="mb-10">
-          <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-2 text-sm text-purple-300 backdrop-blur-xl">
-            <Sparkles className="h-4 w-4" />
-            Smart Itinerary Timeline
-          </span>
+    <div className="page-bg">
+      <div className="orb orb-purple" />
+      <div className="orb orb-pink" />
 
-          <h1 className="mt-5 text-5xl font-black leading-tight">
-            Itinerary View ✈
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* ---- NAV ROW ---- */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 animate-fade-up">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-gray-500 hover:text-gray-200 text-sm font-medium transition-colors group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back to Dashboard
+          </Link>
+          <div className="flex flex-wrap gap-2.5">
+            {[
+              { label: "Checklist", route: `/trips/${id}/checklist`, icon: CheckSquare, color: "text-purple-400" },
+              { label: "Trip Notes", route: `/trips/${id}/notes`,    icon: FileText,    color: "text-pink-400" },
+              { label: "Invoices",   route: `/trips/${id}/invoice`,  icon: FileSpreadsheet, color: "text-cyan-400" },
+            ].map(({ label, route, icon: Icon, color }) => (
+              <button key={label} onClick={() => navigate(route)}
+                className="flex items-center gap-2 rounded-xl glass px-4 py-2.5 text-sm font-medium hover:border-purple-500/30 transition-all">
+                <Icon className={`h-3.5 w-3.5 ${color}`} /> {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ---- HEADER ---- */}
+        <div className="mb-8 animate-fade-up delay-100">
+          <div className="page-badge mb-4">
+            <Sparkles className="h-3 w-3" /> Smart Itinerary Timeline
+          </div>
+          <h1 className="hero-title">
+            Trip Overview <span className="gradient-text">✈</span>
           </h1>
-
-          <p className="mt-4 max-w-3xl text-lg text-gray-400">
-            Organize your travel schedule, activities, and budget beautifully
-            with a premium travel timeline interface.
+          <p className="mt-2 text-gray-400 text-sm max-w-xl">
+            Your curated schedule of activities, budget breakdown, and travel timeline.
           </p>
         </div>
 
-        {/* MAIN CONTAINER */}
-        <div className="rounded-[32px] border border-white/10 bg-gradient-to-br from-[#111827] via-[#0b1020] to-[#050816] p-8 shadow-2xl backdrop-blur-xl">
-          {/* SEARCH + FILTER */}
-          <div className="flex flex-col lg:flex-row gap-4 mb-12">
-            {/* SEARCH */}
-            <div className="relative flex-1">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 h-5 w-5" />
-
-              <input
-                type="text"
-                placeholder="Search itinerary..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-14 py-4 text-white placeholder:text-gray-500 backdrop-blur-xl outline-none focus:ring-2 focus:ring-purple-500"
-              />
+        {/* ---- STATS ROW ---- */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8 animate-fade-up delay-150">
+          {[
+            { label: "Activities",   value: activities.length, icon: Globe,       color: "text-purple-400" },
+            { label: "Total Cost",   value: `$${totalCost}`,   icon: DollarSign,  color: "text-pink-400" },
+            { label: "Days",         value: "2",               icon: Calendar,    color: "text-cyan-400" },
+            { label: "Destinations", value: "3",               icon: MapPin,      color: "text-emerald-400" },
+          ].map(stat => (
+            <div key={stat.label} className="glass rounded-2xl p-4 border border-white/07">
+              <stat.icon className={`w-4 h-4 ${stat.color} mb-3`} />
+              <p className="text-xl font-black">{stat.value}</p>
+              <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-widest font-semibold">{stat.label}</p>
             </div>
+          ))}
+        </div>
 
-            {/* BUTTONS */}
-            <div className="flex gap-4">
-              <button className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-xl hover:bg-white/10 transition-all">
-                <ArrowRight className="h-4 w-4" />
-                Group By
-              </button>
+        {/* ---- MAIN CONTAINER ---- */}
+        <div className="rounded-2xl border border-white/08 p-6 sm:p-8 content-card animate-fade-up delay-200">
 
-              <button className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-xl hover:bg-white/10 transition-all">
-                <Filter className="h-4 w-4" />
-                Filter
-              </button>
+          <div className="section-divider mb-8">
+            <div className="rounded-xl border border-purple-500/20 bg-purple-500/10 px-5 py-2.5 text-sm font-semibold text-purple-300">
+              All Activities
             </div>
           </div>
 
-          {/* TITLE */}
-          <div className="mb-14 text-center">
-            <h2 className="text-5xl font-black">
-              Itinerary For Selected Place
-            </h2>
-
-            <p className="mt-4 text-lg text-gray-400">
-              Manage your activities, travel schedule, and expenses
-            </p>
-          </div>
-
-          {/* ITINERARY */}
-          <div className="space-y-16">
-            {itinerary.map((dayData, dayIndex) => (
-              <div key={dayIndex}>
-                {/* DAY TITLE */}
-                <div className="mb-10 flex items-center gap-4">
-                  <div className="rounded-2xl border border-purple-500/20 bg-purple-500/10 px-6 py-3 text-xl font-bold text-purple-300">
-                    {dayData.day}
-                  </div>
-
-                  <div className="h-[1px] flex-1 bg-white/10" />
-                </div>
-
-                {/* ACTIVITIES */}
-                <div className="space-y-8">
-                  {dayData.activities.map((activity, index) => (
-                    <div
-                      key={index}
-                      className="relative"
-                    >
-                      {/* CONNECTOR */}
-                      {index !== dayData.activities.length - 1 && (
-                        <div className="absolute left-1/2 top-full z-0 h-12 w-[2px] -translate-x-1/2 bg-gradient-to-b from-purple-500 to-transparent" />
-                      )}
-
-                      {/* CARD */}
-                      <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-purple-500/40">
-                        {/* BG */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5" />
-
-                        {/* CONTENT */}
-                        <div className="relative z-10 grid lg:grid-cols-[1fr_220px] gap-6 p-8">
-                          {/* LEFT */}
-                          <div>
-                            <div className="flex items-center gap-3 mb-4">
-                              <div className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-xs font-semibold shadow-lg">
-                                Planned Activity
-                              </div>
-
-                              <div className="rounded-full border border-purple-500/20 bg-purple-500/10 px-4 py-2 text-xs text-purple-300">
-                                #{index + 1}
-                              </div>
+          <div className="space-y-5">
+            {activities.map((activity, index) => {
+              const colorClass = CAT_ACCENT[activity.category] || CAT_ACCENT.default;
+              return (
+                <div key={activity.id || index} className="relative animate-fade-up" style={{ animationDelay: `${index * 0.06}s` }}>
+                  {index < activities.length - 1 && (
+                    <div className="absolute left-[18px] top-full z-0 h-6 w-px bg-gradient-to-b from-purple-500/40 to-transparent" />
+                  )}
+                  <div className={`group relative overflow-hidden rounded-2xl border ${colorClass} backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/8`}>
+                    <div className="relative z-10 grid lg:grid-cols-[1fr_180px] gap-5 p-5 sm:p-6">
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-black shadow-lg">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-2.5">
+                            <div className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+                              Planned
                             </div>
-
-                            <h3 className="text-3xl font-black group-hover:text-purple-300 transition-all">
-                              {activity.title}
-                            </h3>
-
-                            {/* DETAILS */}
-                            <div className="mt-6 flex flex-wrap gap-4">
-                              <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-gray-300">
-                                <MapPin className="h-4 w-4 text-purple-400" />
-
-                                {activity.location}
-                              </div>
-
-                              <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-gray-300">
-                                <Clock className="h-4 w-4 text-purple-400" />
-
-                                {activity.time}
-                              </div>
-
-                              <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-gray-300">
-                                <Calendar className="h-4 w-4 text-purple-400" />
-
-                                Scheduled
-                              </div>
+                            <div className="rounded-full border border-purple-500/20 bg-purple-500/10 px-2.5 py-0.5 text-[10px] text-purple-300 font-semibold uppercase tracking-wide">
+                              {activity.category}
                             </div>
                           </div>
-
-                          {/* EXPENSE */}
-                          <div className="flex flex-col items-center justify-center rounded-3xl border border-purple-500/20 bg-purple-500/10 p-6 text-center">
-                            <DollarSign className="h-10 w-10 text-purple-300" />
-
-                            <p className="mt-4 text-sm uppercase tracking-wide text-gray-400">
-                              Expense
-                            </p>
-
-                            <h3 className="mt-2 text-4xl font-black text-purple-300">
-                              {activity.expense}
-                            </h3>
+                          <h3 className="t-heading text-white group-hover:text-purple-300 transition-colors">{activity.title}</h3>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {activity.location && (
+                              <div className="flex items-center gap-1.5 rounded-xl border border-white/08 bg-white/5 px-3 py-1.5 text-xs text-gray-300">
+                                <MapPin className="h-3 w-3 text-purple-400" /> {activity.location}
+                              </div>
+                            )}
+                            {activity.time && (
+                              <div className="flex items-center gap-1.5 rounded-xl border border-white/08 bg-white/5 px-3 py-1.5 text-xs text-gray-300">
+                                <Clock className="h-3 w-3 text-purple-400" /> {activity.time}
+                              </div>
+                            )}
+                            <div className="flex items-center gap-1.5 rounded-xl border border-white/08 bg-white/5 px-3 py-1.5 text-xs text-gray-300">
+                              <Calendar className="h-3 w-3 text-purple-400" /> Scheduled
+                            </div>
                           </div>
                         </div>
                       </div>
+
+                      <div className="flex flex-col items-center justify-center rounded-xl border border-purple-500/20 bg-purple-500/10 p-4 text-center">
+                        <DollarSign className="h-6 w-6 text-purple-300" />
+                        <p className="mt-1 text-[10px] uppercase tracking-widest text-gray-500 font-semibold">Expense</p>
+                        <h3 className="mt-1 text-2xl font-black text-purple-300">
+                          {Number(activity.cost) === 0 ? "Free" : `$${activity.cost}`}
+                        </h3>
+                      </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* TOTAL BUDGET */}
-          <div className="mt-16 rounded-3xl border border-purple-500/20 bg-gradient-to-r from-purple-500/10 to-pink-500/10 p-8 backdrop-blur-xl">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          {/* ---- TOTAL BUDGET ---- */}
+          <div className="mt-10 rounded-2xl border border-purple-500/20 p-6 sm:p-8 animate-fade-up delay-400"
+            style={{ background: "linear-gradient(135deg, rgba(109,40,217,0.12), rgba(236,72,153,0.08))" }}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h3 className="text-3xl font-black">
-                  Total Trip Budget
-                </h3>
-
-                <p className="mt-3 text-gray-400">
-                  Combined expense estimation for your journey
-                </p>
+                <h3 className="t-section text-white">Total Trip Budget</h3>
+                <p className="mt-1 text-gray-400 text-sm">Combined activity expense estimation</p>
               </div>
-
-              <div className="text-5xl font-black text-purple-300">
-                $535
-              </div>
+              <div className="text-4xl font-black gradient-text">${totalCost}</div>
             </div>
+          </div>
+
+          {/* ---- BOTTOM ACTIONS ---- */}
+          <div className="mt-7 flex flex-wrap gap-3 justify-center border-t border-white/07 pt-7">
+            <button onClick={() => navigate(`/trips/${id}/checklist`)} className="flex items-center gap-2 rounded-2xl btn-primary px-7 py-3.5 text-sm font-semibold">
+              <CheckSquare className="w-4 h-4" /> Packing Checklist
+            </button>
+            <button onClick={() => navigate(`/trips/${id}/notes`)} className="flex items-center gap-2 rounded-2xl bg-pink-500/10 border border-pink-500/20 px-7 py-3.5 text-sm font-semibold text-pink-300 hover:bg-pink-500/20 transition-all">
+              <FileText className="w-4 h-4" /> Trip Notes
+            </button>
+            <button onClick={() => navigate(`/trips/${id}/invoice`)} className="flex items-center gap-2 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 px-7 py-3.5 text-sm font-semibold text-cyan-300 hover:bg-cyan-500/20 transition-all">
+              <FileSpreadsheet className="w-4 h-4" /> View Invoices
+            </button>
           </div>
         </div>
       </div>

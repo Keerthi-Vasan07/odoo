@@ -1,221 +1,165 @@
 import { useState } from "react";
+import { Search, Sparkles, Plus, Pencil, Trash2, Calendar, MapPin, ArrowLeft, BookOpen, Check, X } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 
-import {
-  Search,
-  Filter,
-  ArrowRight,
-  Sparkles,
-  Plus,
-  Pencil,
-  Trash2,
-  Calendar,
-  MapPin,
-  NotebookPen,
-} from "lucide-react";
+const INITIAL_NOTES = [
+  { id: 1, title: "Hotel Check-In Details — Rome", description: "Check in after 2 PM, room 302, breakfast included (7–10 AM). Remember to carry passport copy and booking confirmation.", day: "Day 3", date: "June 14, 2025", location: "Rome, Italy", color: "purple" },
+  { id: 2, title: "Paris Evening Cruise Notes",     description: "Book the Seine River cruise before 5 PM. Premium seating available for sunset timing. Bring a light jacket.", day: "Day 5", date: "June 16, 2025", location: "Paris, France", color: "pink" },
+  { id: 3, title: "Airport Transfer Reminder",     description: "Cab pickup scheduled at 6:30 AM from hotel lobby. Driver contact already shared in WhatsApp group.", day: "Day 7", date: "June 18, 2025", location: "Paris Airport", color: "cyan" },
+];
+
+const NOTE_COLORS = {
+  purple: { border: "border-purple-500/20", glow: "hover:border-purple-500/40", tag: "bg-purple-500/10 text-purple-300 border-purple-500/20", dot: "bg-purple-400" },
+  pink:   { border: "border-pink-500/20",   glow: "hover:border-pink-500/40",   tag: "bg-pink-500/10 text-pink-300 border-pink-500/20",     dot: "bg-pink-400" },
+  cyan:   { border: "border-cyan-500/20",   glow: "hover:border-cyan-500/40",   tag: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20",     dot: "bg-cyan-400" },
+  blue:   { border: "border-blue-500/20",   glow: "hover:border-blue-500/40",   tag: "bg-blue-500/10 text-blue-300 border-blue-500/20",     dot: "bg-blue-400" },
+};
+
+const PALETTE = ["purple", "pink", "cyan", "blue"];
 
 export default function TripNotesPage() {
-  const [search, setSearch] = useState("");
+  const { id }     = useParams();
+  const [search, setSearch]         = useState("");
+  const [notes, setNotes]           = useState(INITIAL_NOTES);
+  const [activeFilter, setActiveFilter] = useState("All");
+  const [editingId, setEditingId]   = useState(null);
+  const [editTitle, setEditTitle]   = useState("");
+  const [editContent, setEditContent] = useState("");
 
-  const [notes] = useState([
-    {
-      id: 1,
-      title: "Hotel Check-In Details - Rome Stop",
-      description:
-        "Check in after 2 PM, room 302, breakfast included (7-10 AM). Remember to carry passport copy and booking confirmation.",
-      day: "Day 3",
-      date: "June 14, 2025",
-      location: "Rome, Italy",
-    },
+  const addNote = () => {
+    const n = { id: Date.now(), title: "New Note", description: "Type your note here...", day: "Day 1", date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }), location: "Location", color: PALETTE[notes.length % PALETTE.length] };
+    setNotes(prev => [n, ...prev]);
+    setEditingId(n.id); setEditTitle(n.title); setEditContent(n.description);
+  };
 
-    {
-      id: 2,
-      title: "Paris Evening Cruise Notes",
-      description:
-        "Book the Seine River cruise before 5 PM. Premium seating available for sunset timing.",
-      day: "Day 5",
-      date: "June 16, 2025",
-      location: "Paris, France",
-    },
+  const deleteNote = noteId => setNotes(prev => prev.filter(n => n.id !== noteId));
+  const startEdit  = (noteId, title, desc) => { setEditingId(noteId); setEditTitle(title); setEditContent(desc); };
+  const saveEdit   = noteId => { setNotes(prev => prev.map(n => n.id === noteId ? { ...n, title: editTitle || n.title, description: editContent || n.description } : n)); setEditingId(null); };
+  const cancelEdit = () => setEditingId(null);
 
-    {
-      id: 3,
-      title: "Airport Transfer Reminder",
-      description:
-        "Cab pickup scheduled at 6:30 AM from hotel lobby. Driver contact already shared in WhatsApp.",
-      day: "Day 7",
-      date: "June 18, 2025",
-      location: "Paris Airport",
-    },
-  ]);
-
-  const filteredNotes = notes.filter((note) =>
-    note.title.toLowerCase().includes(search.toLowerCase())
+  const filtered = notes.filter(n =>
+    (activeFilter === "All" || n.color === activeFilter.toLowerCase()) &&
+    (n.title.toLowerCase().includes(search.toLowerCase()) || n.description.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
-    <div className="min-h-screen bg-[#050816] text-white px-6 py-10">
-      <div className="max-w-7xl mx-auto">
+    <div className="page-bg">
+      <div className="orb orb-purple" style={{ width: 380, height: 380 }} />
+      <div className="orb orb-pink"   style={{ width: 280, height: 280 }} />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
         {/* HEADER */}
-        <div className="mb-10">
-          <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-2 text-sm text-purple-300 backdrop-blur-xl">
-            <Sparkles className="h-4 w-4" />
-            Smart Travel Journal
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8 animate-fade-up">
+          <div>
+            <Link to={`/trips/${id}/view`} className="inline-flex items-center gap-1.5 text-gray-500 hover:text-gray-200 text-sm font-medium transition-colors mb-4 group">
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back to Itinerary
+            </Link>
+            <div className="page-badge mb-3"><Sparkles className="h-3 w-3" /> Smart Travel Journal</div>
+            <h1 className="hero-title">Trip Notes <span className="gradient-text">✍️</span></h1>
+            <p className="mt-2 text-gray-400 text-sm">Capture memories, reminders, and booking details for every stop.</p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
+              <input type="text" placeholder="Search notes..." value={search} onChange={e => setSearch(e.target.value)}
+                className="w-full sm:w-[240px] rounded-2xl border border-white/10 bg-white/5 px-11 py-3 text-sm placeholder:text-gray-600 outline-none focus:ring-2 focus:ring-purple-500 backdrop-blur-xl" />
+            </div>
+            <button onClick={addNote} className="flex items-center gap-2 rounded-2xl btn-primary px-5 py-3 text-sm font-semibold">
+              <Plus className="h-4 w-4" /> Add Note
+            </button>
+          </div>
+        </div>
+
+        {/* FILTER TAGS */}
+        <div className="flex flex-wrap items-center gap-2.5 mb-7 animate-fade-up delay-100">
+          {["All", "Purple", "Pink", "Cyan", "Blue"].map(tag => (
+            <button key={tag} onClick={() => setActiveFilter(tag)}
+              className={`rounded-2xl px-4 py-2 text-sm font-medium transition-all ${activeFilter === tag ? "btn-primary" : "border border-white/10 bg-white/5 text-gray-400 hover:bg-white/8 hover:text-white"}`}>
+              {tag}
+            </button>
+          ))}
+          <span className="ml-auto flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+            <BookOpen className="w-3.5 h-3.5" /> {filtered.length} notes
           </span>
-
-          <h1 className="mt-5 text-5xl font-black leading-tight">
-            Trip Notes ✍️
-          </h1>
-
-          <p className="mt-4 max-w-3xl text-lg text-gray-400">
-            Organize travel memories, reminders, booking details, and important
-            notes beautifully for every journey.
-          </p>
         </div>
 
-        {/* MAIN CONTAINER */}
-        <div className="rounded-[32px] border border-white/10 bg-gradient-to-br from-[#111827] via-[#0b1020] to-[#050816] p-8 shadow-2xl backdrop-blur-xl">
-          {/* SEARCH + FILTER */}
-          <div className="flex flex-col lg:flex-row gap-4 mb-10">
-            {/* SEARCH */}
-            <div className="relative flex-1">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 h-5 w-5" />
+        {/* NOTES GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-up delay-150">
+          {filtered.map((note, i) => {
+            const colors   = NOTE_COLORS[note.color] || NOTE_COLORS.purple;
+            const isEditing = editingId === note.id;
 
-              <input
-                type="text"
-                placeholder="Search trip notes..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-14 py-4 text-white placeholder:text-gray-500 backdrop-blur-xl outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
+            return (
+              <div key={note.id}
+                className={`group relative overflow-hidden rounded-2xl border ${colors.border} ${colors.glow} bg-white/[0.03] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 animate-fade-up`}
+                style={{ animationDelay: `${i * 0.07}s` }}>
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/3 to-transparent" />
+                <div className="relative z-10 p-5">
+                  {isEditing ? (
+                    <div className="space-y-3">
+                      <input autoFocus value={editTitle} onChange={e => setEditTitle(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-purple-500" />
+                      <textarea value={editContent} onChange={e => setEditContent(e.target.value)} rows={4}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-gray-300 outline-none focus:ring-2 focus:ring-purple-500 resize-none" />
+                      <div className="flex gap-2">
+                        <button onClick={() => saveEdit(note.id)}
+                          className="flex items-center gap-1.5 rounded-xl bg-green-500/10 border border-green-500/20 px-3.5 py-2 text-xs text-green-300 hover:bg-green-500/20 transition-all font-semibold">
+                          <Check className="w-3 h-3" /> Save
+                        </button>
+                        <button onClick={cancelEdit}
+                          className="flex items-center gap-1.5 rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 text-xs text-gray-400 hover:bg-white/10 transition-all font-semibold">
+                          <X className="w-3 h-3" /> Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-start justify-between gap-3 mb-4">
+                        <div className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${colors.tag}`}>
+                          <Calendar className="w-2.5 h-2.5" /> {note.day}
+                        </div>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <button onClick={() => startEdit(note.id, note.title, note.description)}
+                            className="rounded-lg border border-purple-500/20 bg-purple-500/10 p-1.5 text-purple-300 hover:bg-purple-500/20 transition-all">
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                          <button onClick={() => deleteNote(note.id)}
+                            className="rounded-lg border border-red-500/20 bg-red-500/10 p-1.5 text-red-300 hover:bg-red-500/20 transition-all">
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </div>
 
-            {/* BUTTONS */}
-            <div className="flex gap-4">
-              <button className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-xl hover:bg-white/10 transition-all">
-                <ArrowRight className="h-4 w-4" />
-                Group By
-              </button>
+                      <h3 className="t-heading text-white mb-2.5 group-hover:text-purple-300 transition-colors">{note.title}</h3>
+                      <p className="text-gray-400 text-xs leading-relaxed line-clamp-3">{note.description}</p>
 
-              <button className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-xl hover:bg-white/10 transition-all">
-                <Filter className="h-4 w-4" />
-                Filter
-              </button>
-            </div>
-          </div>
-
-          {/* TOP BAR */}
-          <div className="mb-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            {/* LEFT */}
-            <div>
-              <h2 className="text-4xl font-black">
-                Travel Notes
-              </h2>
-
-              <div className="mt-5 inline-flex items-center gap-3 rounded-2xl border border-purple-500/20 bg-purple-500/10 px-5 py-3 text-purple-300">
-                <NotebookPen className="h-5 w-5" />
-                Paris & Rome Adventure
+                      <div className="mt-4 flex flex-wrap gap-2 pt-4 border-t border-white/08">
+                        <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-medium">
+                          <MapPin className="h-3 w-3 text-purple-400" /> {note.location}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-medium ml-auto">
+                          <Calendar className="h-3 w-3 text-purple-400" /> {note.date}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
+            );
+          })}
+
+          {/* Ghost add card */}
+          <button onClick={addNote}
+            className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center gap-3 min-h-[220px] hover:border-purple-500/30 hover:bg-purple-500/5 transition-all group">
+            <div className="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Plus className="w-5 h-5 text-purple-400" />
             </div>
-
-            {/* ADD BUTTON */}
-            <button className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-4 font-semibold shadow-xl hover:scale-105 transition-all">
-              <Plus className="h-5 w-5" />
-              Add Note
-            </button>
-          </div>
-
-          {/* FILTER TAGS */}
-          <div className="mb-10 flex flex-wrap gap-4">
-            <FilterTag title="All" active />
-            <FilterTag title="By Day" />
-            <FilterTag title="By Stop" />
-          </div>
-
-          {/* NOTES */}
-          <div className="space-y-8">
-            {filteredNotes.map((note) => (
-              <NoteCard key={note.id} note={note} />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ================================================= */
-/* NOTE CARD */
-/* ================================================= */
-
-function NoteCard({ note }) {
-  return (
-    <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-purple-500/40">
-      {/* BACKGROUND */}
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5" />
-
-      {/* CONTENT */}
-      <div className="relative z-10 p-8">
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-          {/* LEFT */}
-          <div className="flex-1">
-            {/* TITLE */}
-            <h3 className="text-3xl font-black group-hover:text-purple-300 transition-all">
-              {note.title}
-            </h3>
-
-            {/* DESCRIPTION */}
-            <p className="mt-5 text-lg leading-relaxed text-gray-300">
-              {note.description}
-            </p>
-
-            {/* DETAILS */}
-            <div className="mt-8 flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-gray-300">
-                <Calendar className="h-4 w-4 text-purple-400" />
-
-                {note.day} • {note.date}
-              </div>
-
-              <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-gray-300">
-                <MapPin className="h-4 w-4 text-purple-400" />
-
-                {note.location}
-              </div>
-            </div>
-          </div>
-
-          {/* ACTIONS */}
-          <div className="flex gap-4">
-            {/* EDIT */}
-            <button className="rounded-2xl border border-purple-500/20 bg-purple-500/10 p-4 text-purple-300 backdrop-blur-xl transition-all hover:bg-purple-500/20">
-              <Pencil className="h-5 w-5" />
-            </button>
-
-            {/* DELETE */}
-            <button className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-300 backdrop-blur-xl transition-all hover:bg-red-500/20">
-              <Trash2 className="h-5 w-5" />
-            </button>
-          </div>
+            <span className="text-xs text-gray-500 group-hover:text-gray-300 transition-colors font-medium">Add New Note</span>
+          </button>
         </div>
       </div>
     </div>
-  );
-}
-
-/* ================================================= */
-/* FILTER TAG */
-/* ================================================= */
-
-function FilterTag({ title, active }) {
-  return (
-    <button
-      className={`rounded-2xl px-6 py-3 text-sm font-medium transition-all ${
-        active
-          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
-          : "border border-white/10 bg-white/5 text-gray-300 hover:bg-white/10"
-      }`}
-    >
-      {title}
-    </button>
   );
 }
